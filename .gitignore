@@ -1,0 +1,4 @@
+# This is git ignore file.
+
+# Virtual Environment Directory
+venv/
