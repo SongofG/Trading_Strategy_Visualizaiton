@@ -24,6 +24,12 @@ st.write("Recommended list of stocks")
     
 st.write(tickers.head())
 
+# Let the user select the ticker
+sorted_tickers = sorted(tickers['ticker'].astype(str).unique())
+ticker = st.selectbox("What's the ticker of interest?", sorted_tickers)
+
+st.write(f"You've selected: {ticker}")
+
 tab1, tab2, tab3 = st.tabs(["Strategy 1", "Strategy 2", "Strategy 3"])
 
 with tab1:
