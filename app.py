@@ -13,7 +13,7 @@ from utils.visualization import historical_price_candlestick_chart
 
 # Random Stock price generating data
 # Generate random data for the stock price
-np.random.seed(0)
+# np.random.seed(0)
 dates = pd.date_range('2023-01-01', '2023-12-31')
 price1 = np.cumsum(np.random.randn(len(dates))) + 100
 price2 = np.cumsum(np.random.randn(len(dates))) + 100
