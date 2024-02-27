@@ -28,7 +28,7 @@ st.write(tickers.head())
 sorted_tickers = sorted(tickers['ticker'].astype(str).unique())
 ticker = st.selectbox("What's the ticker of interest?", sorted_tickers)
 
-st.write(f"You've selected: {ticker}")
+# st.write(f"You've selected: {ticker}")
 
 tab1, tab2, tab3 = st.tabs(["Strategy 1", "Strategy 2", "Strategy 3"])
 

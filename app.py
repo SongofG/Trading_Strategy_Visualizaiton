@@ -3,13 +3,8 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
-from utils.visualization import historical_price_candlestick_chart
+from utils.visualization import Visualizers
 
-"""
-    Initial Setup step:
-    
-    1. Import the data
-"""
 
 # Random Stock price generating data
 # Generate random data for the stock price
@@ -35,9 +30,16 @@ st.write("Please select the ticker of interst!")
 
 # Select Box
 ticker = st.selectbox("What's the ticker of interest?", sorted_tickers)
+period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo','3mo','6mo','1y','2y','5y','10y','ytd','max'])
+
+# Initialize the Visualizer Object
+viz = Visualizers(ticker=ticker, period=period)
 
 # Candlestick Chart of the target ticker
-historical_price_candlestick_chart(ticker=ticker, period='max')
+viz.historical_price_candlestick_chart()
+
+# Trade Volume Chart
+viz.trade_volume_chart()
 
 # Tabs for each strategy
 tab1, tab2, tab3 = st.tabs(["Strategy 1", "Strategy 2", "Strategy 3"])
@@ -80,6 +82,7 @@ with tab3:
    fig = go.Figure()
    
    fig.add_trace(go.Scatter(x=price3_df['Date'], y=price3_df['Price'], mode='lines', name='Price'))
+   
    # Update layout
    fig.update_layout(
        title='Random Stock Price Chart',
