@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from utils.visualization import Visualizers
+import pickle
 
 
 # Set Page Configuration
@@ -37,6 +38,9 @@ period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo
 
 # Initialize the Visualizer Object
 viz = Visualizers(ticker=ticker, period=period)
+
+# Serialize the Visualizer object
+st.session_state['price_history'] = pickle.dumps(viz.price_history)
 
 # Candlestick Chart of the target ticker
 viz.historical_price_candlestick_chart()

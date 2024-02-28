@@ -5,7 +5,6 @@ import plotly.graph_objects as go
 import plotly.express as px
 from yfinance.base import TickerBase
 
-
 class Visualizers():
     
     def __init__(self, ticker, period):
@@ -54,11 +53,11 @@ class Visualizers():
             xaxis_title='Date',
             yaxis_title='Price',
             xaxis_rangeslider_visible=False,
-            width=1550,
-            height=600
+            # width=1550,
+            # height=600
         )
         
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True)
         
     
     def trade_volume_chart(self):
@@ -74,10 +73,11 @@ class Visualizers():
             title=f'Trade Volume Chart: {self.ticker}',
             xaxis_title='Date',
             yaxis_title='Volume',
-            width=1550,
-            height=600,
-            barcornerradius=15
+            # width=1550,
+            # height=600,
+            barcornerradius=15,
+            showlegend=False
         )
         
         # Show the trade volume chart
-        st.plotly_chart(fig)
+        st.plotly_chart(fig, use_container_width=True)
