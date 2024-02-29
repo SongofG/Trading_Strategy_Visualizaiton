@@ -3,5 +3,5 @@
 # Virtual Environment Directory
 venv/
 
-#
+# pycache
 utils/__pycache__/
