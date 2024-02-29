@@ -57,7 +57,9 @@ class Visualizers():
             # height=600
         )
         
-        st.plotly_chart(fig, use_container_width=True)
+        # st.plotly_chart(fig, use_container_width=True)
+        
+        return fig
         
     
     def trade_volume_chart(self):
@@ -80,4 +82,6 @@ class Visualizers():
         )
         
         # Show the trade volume chart
-        st.plotly_chart(fig, use_container_width=True)
+        # st.plotly_chart(fig, use_container_width=True)
+        
+        return fig
