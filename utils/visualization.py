@@ -53,11 +53,7 @@ class Visualizers():
             xaxis_title='Date',
             yaxis_title='Price',
             xaxis_rangeslider_visible=False,
-            # width=1550,
-            # height=600
         )
-        
-        # st.plotly_chart(fig, use_container_width=True)
         
         return fig
         
@@ -80,8 +76,5 @@ class Visualizers():
             barcornerradius=15,
             showlegend=False
         )
-        
-        # Show the trade volume chart
-        # st.plotly_chart(fig, use_container_width=True)
         
         return fig
