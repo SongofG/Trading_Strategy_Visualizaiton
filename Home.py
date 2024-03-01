@@ -14,9 +14,12 @@ st.set_page_config(page_title="Stock Trading Strategies Visualization", page_ico
 # Initialize the Session States
 if 'ticker' not in st.session_state:
     st.session_state['ticker'] = 'AAPL'
-
 if 'period' not in st.session_state:
-    st.session_state['period'] = '6mo'
+    st.session_state['period'] = '2y'
+if 'ma_1' not in st.session_state:
+    st.session_state['ma_1'] = 224
+if 'ma_2' not in st.session_state:
+    st.session_state['ma_2'] = 112
 
 # Random Stock price generating data
 # Generate random data for the stock price
@@ -55,54 +58,87 @@ st.plotly_chart(viz.historical_price_candlestick_chart(), use_container_width=Tr
 st.plotly_chart(viz.trade_volume_chart(), use_container_width=True)
 
 # Tabs for each strategy
-tab1, tab2, tab3 = st.tabs(["Strategy 1: Moving Average", "Strategy 2", "Strategy 3"])
+tab1, tab2, tab3 = st.tabs(["Strategy 1: Moving Average", "Strategy 2: ARIMA", "Strategy 3: LSTM"])
 
 with tab1:
-   st.header("Strategy 1: Moving Average")
+    st.header("Moving Average")
+    
+    # Candlesticks Chart Figure Object
+    fig = viz.historical_price_candlestick_chart()
    
-   # Give Selectbox for the moving average period
-   # Sidebar for user input
-   ma_period = st.slider('MA 1', min_value=30, max_value=120, value=1)
+    # Add columns for the moving average sliders
+    col1, col2 = st.columns(2)
    
-   viz.price_history['ma1'] = viz.price_history['Close'].rolling(window=ma_period).mean()
+    # MA 1 column
+    with col1:
+        st.markdown('#### Moving Average 1')
+        # Give Selectbox for the moving average period
+        st.slider("", min_value=30, max_value=365, value=1, key='ma_1')
+    with col2:
+        st.markdown('#### Moving Average 2')
+        # Give textinput box
+        st.slider("", min_value=30, max_value=365, value=1, key='ma_2')
    
-   st.write(viz.price_history.head())
-#    # Sidebar for user input
-#    period = st.slider('MA 2', min_value=30, max_value=120, value=1)
-#    # Sidebar for user input
-#    period = st.slider('MA 3', min_value=30, max_value=120, value=1)
+    viz.price_history['ma_1'] = viz.price_history['Close'].rolling(window=st.session_state['ma_1']).mean()
+    viz.price_history['ma_2'] = viz.price_history['Close'].rolling(window=st.session_state['ma_2']).mean()
    
-   st.plotly_chart(viz.historical_price_candlestick_chart(), use_container_width=True)
+    # Add MA_1 Line
+    fig.add_trace(
+        go.Scatter(
+            x=viz.price_history['Date'],
+            y=viz.price_history['ma_1'],
+            mode='lines',
+            line={"width": 1.25},
+            name="MA 1",
+            opacity=0.45,
+            marker={'color': 'black'}
+        )
+    )
+    
+    # Add MA_2 Line
+    fig.add_trace(
+        go.Scatter(
+            x=viz.price_history['Date'],
+            y=viz.price_history['ma_2'],
+            mode='lines',
+            line={"width": 1.25},
+            name="MA 2",
+            opacity=0.45,
+            marker={'color': 'orange'}
+        )
+    )
+   
+    st.plotly_chart(fig, use_container_width=True)
    
 
 with tab2:
-   st.header("Strategy 2")
-   
-   fig = go.Figure()
-   
-   fig.add_trace(go.Scatter(x=price2_df['Date'], y=price2_df['Price'], mode='lines', name='Price'))
-   # Update layout
-   fig.update_layout(
-       title='Random Stock Price Chart',
-       xaxis_title='Date',
-       yaxis_title='Price'
-   )
+    st.header("ARIMA")
 
-   st.plotly_chart(fig, use_container_width=True)
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=price2_df['Date'], y=price2_df['Price'], mode='lines', name='Price'))
+    # Update layout
+    fig.update_layout(
+        title='Random Stock Price Chart',
+        xaxis_title='Date',
+        yaxis_title='Price'
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
    
 
 with tab3:
-   st.header("Strategy 3")
-   
-   fig = go.Figure()
-   
-   fig.add_trace(go.Scatter(x=price3_df['Date'], y=price3_df['Price'], mode='lines', name='Price'))
-   
-   # Update layout
-   fig.update_layout(
-       title='Random Stock Price Chart',
-       xaxis_title='Date',
-       yaxis_title='Price'
-   )
+    st.header("LSTM")
 
-   st.plotly_chart(fig, use_container_width=True)
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=price3_df['Date'], y=price3_df['Price'], mode='lines', name='Price'))
+
+    # Update layout
+    fig.update_layout(
+        title='Random Stock Price Chart',
+        xaxis_title='Date',
+        yaxis_title='Price'
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
