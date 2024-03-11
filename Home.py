@@ -51,8 +51,6 @@ period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo
 # Initialize the Visualizer Object
 viz = Visualizers(ticker=st.session_state.ticker, period=st.session_state.period)
 
-# # Candlestick Chart of the target ticker
-# st.plotly_chart(viz.historical_price_candlestick_chart(), use_container_width=True)
 
 # Tabs for each strategy
 tab1, tab2, tab3 = st.tabs(["Strategy 1: Moving Average", "Strategy 2: ARIMA", "Strategy 3: LSTM"])
