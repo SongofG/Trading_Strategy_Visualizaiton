@@ -74,7 +74,7 @@ class Visualizers():
             # width=1550,
             # height=600,
             barcornerradius=15,
-            showlegend=False
+            # showlegend=False
         )
         
         return fig
