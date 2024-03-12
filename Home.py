@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from utils.visualization import Visualizers
+from utils.preprocess import Preprocess
 import pickle
 
 
@@ -127,16 +128,21 @@ with tab2:
 
 with tab3:
     st.header("LSTM")
+    
+    # Get the preprocessor ready
+    preprocessor = Preprocess()
+    
+    # Select Box of the data to train for
+    price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
+    
+    # Slider for the range of the window function
+    window_size = st.slider("", min_value=0, max_value=viz.price_history[price_type].shape[0]//4, value=1, key='window_size')  # limited the size of window function so that it cannot have the full range.
+    
+    #Split the data into X and Y!
+    X, y = preprocessor.dataframe_to_X_y(viz.price_history[price_type], window_size=window_size)
+    
+    # Plot the target line
+    line_chart = viz.line_chart(x=viz.price_history['Date'], y=viz.price_history[price_type], color='sky blue', width=1.5, xaxis_title='Date', yaxis_title='Price', title=f"{price_type} Price Over Date")
+    st.plotly_chart(line_chart, use_container_width=True)
 
-    fig = go.Figure()
 
-    fig.add_trace(go.Scatter(x=price3_df['Date'], y=price3_df['Price'], mode='lines', name='Price'))
-
-    # Update layout
-    fig.update_layout(
-        title='Random Stock Price Chart',
-        xaxis_title='Date',
-        yaxis_title='Price'
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
