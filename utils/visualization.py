@@ -78,3 +78,17 @@ class Visualizers():
         )
         
         return fig
+    
+    def line_chart(self, title, x, y, color, width, xaxis_title, yaxis_title):
+        
+        fig = go.Figure()
+        
+        fig.add_trace(go.Scatter(x=x, y=y, mode='lines', line=dict(color=color, width=width)))
+        
+        fig.update_layout(
+            title=title,
+            xaxis_title=xaxis_title,
+            yaxis_title=yaxis_title
+        )
+        
+        return fig
