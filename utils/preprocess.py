@@ -7,6 +7,7 @@ class Preprocess:
         
         pass
     
+    
     def dataframe_to_X_y(self, df, window_size=5):
         
         # convert the dataframe into numpy
@@ -22,4 +23,19 @@ class Preprocess:
             y.append(label)
             
         return np.array(X), np.array(y)
-
+    
+    
+    def train_validation_test_split(X, y, train_ratio):
+        
+        validation_ratio = round((1-train_ratio)/2, 2)
+        
+        train_q = int(len(X) * train_ratio)
+        validation_q = int(len(X) * (train_ratio + validation_ratio))
+        
+        # Split X
+        X_train, X_validation, X_test = X[:train_q], X[train_q:validation_q], X[validation_q:]
+        
+        # Split y
+        y_train, y_validation, y_test = y[:train_q], y[train_q:validation_q], y[validation_q:]
+        
+        return X_train, X_validation, X_test, y_train, y_validation, y_test
