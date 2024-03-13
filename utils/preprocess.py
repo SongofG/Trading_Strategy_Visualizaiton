@@ -22,10 +22,10 @@ class Preprocess:
         self.df['Date'] = self.df['Date'].dt.date
         
     
-    def df_to_windowed_df(self, n=3):
+    def df_to_windowed_df(self, dataframe, n=3):
         
-        first_date = self.df.index[n]  # The minimum date from that's n rows away from the start
-        last_date  = self.df.index[-1]  # The last date
+        first_date = dataframe.index[n]  # The minimum date from that's n rows away from the start
+        last_date  = dataframe.index[-1]  # The last date
 
         target_date = first_date
         
@@ -34,7 +34,7 @@ class Preprocess:
 
         last_time = False
         while True:
-            df_subset = self.df.loc[:target_date].tail(n+1)
+            df_subset = dataframe.loc[:target_date].tail(n+1)
             
             if len(df_subset) != n+1:
                 print(f'Error: Window of size {n} is too large for date {target_date}')
@@ -47,7 +47,7 @@ class Preprocess:
             X.append(x)
             Y.append(y)
 
-            next_week = self.df.loc[target_date:target_date+datetime.timedelta(days=7)]
+            next_week = dataframe.loc[target_date:target_date+datetime.timedelta(days=7)]
             next_datetime_str = str(next_week.head(2).tail(1).index.values[0])
             next_date_str = next_datetime_str.split('T')[0]
             year_month_day = next_date_str.split('-')
@@ -73,6 +73,18 @@ class Preprocess:
         ret_df['Target'] = Y
 
         return ret_df
+    
+    
+    def windowed_df_to_X_y(self, windowed_df):
+        
+        df_as_np = windowed_df.to_numpy()
+        
+        middle_matrix = df_as_np[:, 1:-1]
+        X = middle_matrix.reshape((len(df_as_np), middle_matrix.shape[1], 1))
+
+        y = df_as_np[:, -1]
+        
+        return X, y
     
     
     def dataframe_to_X_y(self, df, window_size=5):
