@@ -75,16 +75,18 @@ class Preprocess:
         return ret_df
     
     
-    def windowed_df_to_X_y(self, windowed_df):
+    def windowed_df_to_dates_X_y(self, windowed_df):
         
         df_as_np = windowed_df.to_numpy()
         
+        dates = df_as_np[:, 0]
+
         middle_matrix = df_as_np[:, 1:-1]
-        X = middle_matrix.reshape((len(df_as_np), middle_matrix.shape[1], 1))
+        X = middle_matrix.reshape((len(dates), middle_matrix.shape[1], 1))
 
         y = df_as_np[:, -1]
         
-        return X, y
+        return dates, X, y
     
     
     def dataframe_to_X_y(self, df, window_size=5):
