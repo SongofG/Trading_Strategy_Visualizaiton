@@ -1,11 +1,25 @@
 import pandas as pd
 import numpy as np
+import datetime
 
 class Preprocess:
     
-    def __init__(self):
+    def __init__(self, df, target):
         
-        pass
+        self.df = df[['Date', target]]
+        self.target = target
+        
+    
+    def _str_to_datetime(self, s):
+        split = s.split('-')
+        year, month, day = int(split[0]), int(split[1]), int(split[2])
+        return datetime.date(year=year, month=month, day=day)
+    
+    def _date_to_index(self):
+        """
+            This method pops the Date column to be the index of the df.
+        """
+        self.df['Date'] = self.df['Date'].dt.date
     
     
     def dataframe_to_X_y(self, df, window_size=5):
