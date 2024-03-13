@@ -10,10 +10,10 @@ class Preprocess:
         self.target = target
         
     
-    def _str_to_datetime(self, s):
-        split = s.split('-')
-        year, month, day = int(split[0]), int(split[1]), int(split[2])
-        return datetime.date(year=year, month=month, day=day)
+    # def _str_to_datetime(self, s):
+    #     split = s.split('-')
+    #     year, month, day = int(split[0]), int(split[1]), int(split[2])
+    #     return datetime.date(year=year, month=month, day=day)
     
     def _date_to_index(self):
         """
@@ -22,7 +22,7 @@ class Preprocess:
         self.df['Date'] = self.df['Date'].dt.date
         
     
-    def df_to_windowed_df(self, dataframe, n=3):
+    def _df_to_windowed_df(self, dataframe, n=3):
         
         first_date = dataframe.index[n]  # The minimum date from that's n rows away from the start
         last_date  = dataframe.index[-1]  # The last date
@@ -75,7 +75,9 @@ class Preprocess:
         return ret_df
     
     
-    def windowed_df_to_dates_X_y(self, windowed_df):
+    def windowed_df_to_dates_X_y(self, dataframe, n=3):
+        
+        windowed_df = self._df_to_windowed_df(dataframe, n)
         
         df_as_np = windowed_df.to_numpy()
         
@@ -89,23 +91,24 @@ class Preprocess:
         return dates, X, y
     
     
-    def dataframe_to_X_y(self, df, window_size=5):
+    # def dataframe_to_X_y(self, df, window_size=5):
         
-        # convert the dataframe into numpy
-        df_as_np = df.to_numpy()
-        X = []
-        y = []
+    #     # convert the dataframe into numpy
+    #     df_as_np = df.to_numpy()
+    #     X = []
+    #     y = []
         
-        # Iterate over the numpy object
-        for i in range(len(df_as_np)-window_size):
-            row = [[a] for a in df_as_np[i:i+window_size]]
-            X.append(row)
-            label = df_as_np[i+5]
-            y.append(label)
+    #     # Iterate over the numpy object
+    #     for i in range(len(df_as_np)-window_size):
+    #         row = [[a] for a in df_as_np[i:i+window_size]]
+    #         X.append(row)
+    #         label = df_as_np[i+5]
+    #         y.append(label)
             
-        return np.array(X), np.array(y)
+    #     return np.array(X), np.array(y)
     
     
+    # Modify this fuction accordingly to the above functions
     def train_validation_test_split(X, y, train_ratio):
         
         validation_ratio = round((1-train_ratio)/2, 2)
