@@ -21,6 +21,10 @@ if 'ma_1' not in st.session_state:
     st.session_state['ma_1'] = 224
 if 'ma_2' not in st.session_state:
     st.session_state['ma_2'] = 112
+if 'window_size' not in st.session_state:
+    st.session_state['window_size'] = 20
+if 'train_ratio' not in st.session_state:
+    st.session_state['train_ratio'] = 0.8
 
 # Random Stock price generating data
 # Generate random data for the stock price
@@ -54,9 +58,57 @@ viz = Visualizers(ticker=st.session_state.ticker, period=st.session_state.period
 
 
 # Tabs for each strategy
-tab1, tab2, tab3 = st.tabs(["Strategy 1: Moving Average", "Strategy 2: ARIMA", "Strategy 3: LSTM"])
+tab1, tab2, tab3 = st.tabs(["Strategy 1: LSTM", "Strategy 2: ARIMA", "Strategy 3: Moving Average"])
 
 with tab1:
+    
+    st.header("LSTM")
+    
+    # Get the preprocessor ready
+    preprocessor = Preprocess()
+    
+    # Select Box of the data to train for
+    price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
+    
+    # Slider for the range of the window function
+    window_size = st.slider("", min_value=0, max_value=viz.price_history[price_type].shape[0]//4, value=1, key='window_size')  # limited the size of window function so that it cannot have the full range.
+    
+    #Split the data into X and Y!
+    X, y = preprocessor.dataframe_to_X_y(viz.price_history[price_type], window_size=window_size)
+    
+    # Plot the target line
+    line_chart = viz.line_chart(x=viz.price_history['Date'], y=viz.price_history[price_type], color='sky blue', width=1.5, xaxis_title='Date', yaxis_title='Price', title=f"{price_type} Price Over Date")
+    st.plotly_chart(line_chart, use_container_width=True)
+    
+    # Get the ratio of training set from the user
+    train_ratio = st.text_input("What ratio do you want your dataset to be a training set?", max_chars=4, key="train_ratio")
+    
+    # Check if the ratio is acceptable
+    train_ratio = float(train_ratio)
+    
+    if train_ratio <= 0 or train_ratio > 1:
+        st.warning('The ratio you have given is not valid', icon="⚠️")
+    else:
+        st.button("Split the Dataset!")
+   
+
+with tab2:
+    st.header("ARIMA")
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter(x=price2_df['Date'], y=price2_df['Price'], mode='lines', name='Price'))
+    # Update layout
+    fig.update_layout(
+        title='Random Stock Price Chart',
+        xaxis_title='Date',
+        yaxis_title='Price'
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+   
+
+with tab3:
     st.header("Moving Average")
     
     # Candlesticks Chart Figure Object
@@ -108,41 +160,4 @@ with tab1:
     
     # Trade Volume Chart
     st.plotly_chart(viz.trade_volume_chart(), use_container_width=True)
-   
-
-with tab2:
-    st.header("ARIMA")
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(x=price2_df['Date'], y=price2_df['Price'], mode='lines', name='Price'))
-    # Update layout
-    fig.update_layout(
-        title='Random Stock Price Chart',
-        xaxis_title='Date',
-        yaxis_title='Price'
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-   
-
-with tab3:
-    st.header("LSTM")
     
-    # Get the preprocessor ready
-    preprocessor = Preprocess()
-    
-    # Select Box of the data to train for
-    price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
-    
-    # Slider for the range of the window function
-    window_size = st.slider("", min_value=0, max_value=viz.price_history[price_type].shape[0]//4, value=1, key='window_size')  # limited the size of window function so that it cannot have the full range.
-    
-    #Split the data into X and Y!
-    X, y = preprocessor.dataframe_to_X_y(viz.price_history[price_type], window_size=window_size)
-    
-    # Plot the target line
-    line_chart = viz.line_chart(x=viz.price_history['Date'], y=viz.price_history[price_type], color='sky blue', width=1.5, xaxis_title='Date', yaxis_title='Price', title=f"{price_type} Price Over Date")
-    st.plotly_chart(line_chart, use_container_width=True)
-
-
