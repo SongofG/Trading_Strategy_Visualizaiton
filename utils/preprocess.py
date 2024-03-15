@@ -19,7 +19,12 @@ class Preprocess:
         """
             This method pops the Date column to be the index of the df.
         """
+        
+        # Cast the type of the Date column
         self.df['Date'] = self.df['Date'].dt.date
+        
+        # Let Dates be index
+        self.df.index = self.df.pop('Date')
         
     
     def _df_to_windowed_df(self, dataframe, n=3):
@@ -40,7 +45,7 @@ class Preprocess:
                 print(f'Error: Window of size {n} is too large for date {target_date}')
                 return
 
-            values = df_subset['Close'].to_numpy()
+            values = df_subset[self.target].to_numpy()
             x, y = values[:-1], values[-1]
 
             dates.append(target_date)
@@ -75,9 +80,11 @@ class Preprocess:
         return ret_df
     
     
-    def windowed_df_to_dates_X_y(self, dataframe, n=3):
+    def windowed_df_to_dates_X_y(self, n=3):
         
-        windowed_df = self._df_to_windowed_df(dataframe, n)
+        self._date_to_index()
+        
+        windowed_df = self._df_to_windowed_df(self.df, n)
         
         df_as_np = windowed_df.to_numpy()
         

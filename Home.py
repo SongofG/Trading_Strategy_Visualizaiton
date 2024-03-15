@@ -23,8 +23,8 @@ if 'ma_2' not in st.session_state:
     st.session_state['ma_2'] = 112
 if 'window_size' not in st.session_state:
     st.session_state['window_size'] = 20
-if 'train_ratio' not in st.session_state:
-    st.session_state['train_ratio'] = 0.8
+if 'train_ratio' not in st.session_state or st.session_state['train_ratio'] == '':
+    st.session_state['train_ratio'] = '0.8'
 
 # Random Stock price generating data
 # Generate random data for the stock price
@@ -64,21 +64,26 @@ with tab1:
     
     st.header("LSTM")
     
-    # Get the preprocessor ready
-    preprocessor = Preprocess()
-    
     # Select Box of the data to train for
     price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
+    
+    # Get the preprocessor ready
+    preprocessor = Preprocess(viz.price_history, price_type)
     
     # Slider for the range of the window function
     window_size = st.slider("", min_value=0, max_value=viz.price_history[price_type].shape[0]//4, value=1, key='window_size')  # limited the size of window function so that it cannot have the full range.
     
-    #Split the data into X and Y!
-    X, y = preprocessor.dataframe_to_X_y(viz.price_history[price_type], window_size=window_size)
+    # #Split the data into X and Y!
+    # X, y = preprocessor.dataframe_to_X_y(viz.price_history[price_type], window_size=window_size)
     
     # Plot the target line
     line_chart = viz.line_chart(x=viz.price_history['Date'], y=viz.price_history[price_type], color='sky blue', width=1.5, xaxis_title='Date', yaxis_title='Price', title=f"{price_type} Price Over Date")
     st.plotly_chart(line_chart, use_container_width=True)
+    
+    dates, X, y = preprocessor.windowed_df_to_dates_X_y(n=5)
+    st.write(dates)
+    st.write(X),
+    st.write(y)
     
     # Get the ratio of training set from the user
     train_ratio = st.text_input("What ratio do you want your dataset to be a training set?", max_chars=4, key="train_ratio")
