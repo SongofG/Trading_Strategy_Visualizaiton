@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import datetime
+import streamlit as st
 
 class Preprocess:
     
@@ -76,6 +77,9 @@ class Preprocess:
             ret_df[f'Target-{n-i}'] = X[:, i]
         
         ret_df['Target'] = Y
+        
+        # This is for debugging purpose
+        # st.write(ret_df)
 
         return ret_df
     
@@ -116,12 +120,20 @@ class Preprocess:
     
     
     # Modify this fuction accordingly to the above functions
-    def train_validation_test_split(X, y, train_ratio):
+    def train_validation_test_split(self, dates, X, y, train_ratio):
+        
+        # Check if the given ratio is acceptable or not.
+        if train_ratio <= 0 or train_ratio > 1:
+            st.error('The ratio you have given is not in valid range', icon='🚨')
+            return
         
         validation_ratio = round((1-train_ratio)/2, 2)
         
         train_q = int(len(X) * train_ratio)
         validation_q = int(len(X) * (train_ratio + validation_ratio))
+        
+        # Split dates
+        dates_train, dates_validation, dates_test = dates[:train_q], dates[train_q:validation_q], dates[validation_q:]
         
         # Split X
         X_train, X_validation, X_test = X[:train_q], X[train_q:validation_q], X[validation_q:]
@@ -129,4 +141,11 @@ class Preprocess:
         # Split y
         y_train, y_validation, y_test = y[:train_q], y[train_q:validation_q], y[validation_q:]
         
-        return X_train, X_validation, X_test, y_train, y_validation, y_test
+        # Package the outputs
+        results = {
+            "X": {"train": X_train, "validation": X_validation, "test": X_test},
+            "y": {"train": y_train, "validation": y_validation, "test": y_test},
+            "dates": {"train": dates_train, "validation": dates_validation, "test": dates_test}
+        }
+        
+        return results

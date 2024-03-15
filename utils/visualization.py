@@ -92,3 +92,33 @@ class Visualizers():
         )
         
         return fig
+
+    
+    def train_validation_test_visualization(self, results):
+        
+        # We unpact the train, validation, and test for the data
+        dates = results['dates']
+        y = results['y']
+        
+        # Get the lines
+        train_trace = go.Scatter(x=dates['train'], y=y['train'], mode='lines', name='Train', line=dict(color='sky blue'))
+        validation_trace = go.Scatter(x=dates['validation'], y=y['validation'], mode='lines', name='Validation', line=dict(color='orange'))
+        test_trace = go.Scatter(x=dates['test'], y=y['test'], mode='lines', name='Test', line=dict(color='green'))
+        
+        fig = go.Figure(data=[train_trace, validation_trace, test_trace])
+        
+        # Customize layout
+        fig.update_layout(
+            title='Train, Validaiton, and Test Split!',
+            xaxis_title='Date',
+            yaxis_title='Price',
+            legend_title='Dataset',
+            legend=dict(
+            x=0,
+            y=0.75,
+            xanchor='left',
+            yanchor='bottom'
+                )
+            )
+        
+        return fig
