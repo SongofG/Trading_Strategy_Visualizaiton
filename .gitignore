@@ -5,3 +5,9 @@ venv/
 
 # pycache
 utils/__pycache__/
+
+# Conda Environment
+conda_venv/
+
+# jupyter notebooks
+*.ipynb
