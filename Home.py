@@ -51,9 +51,59 @@ period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo
 # Initialize the Visualizer Object
 viz = Visualizers(ticker=st.session_state.ticker, period=st.session_state.period)
 
+ # Candlesticks Chart Figure Object
+fig = viz.historical_price_candlestick_chart()
+
+# Add columns for the moving average sliders
+col1, col2 = st.columns(2)
+
+# MA 1 column
+with col1:
+    st.markdown('#### Moving Average 1')
+    # Give Selectbox for the moving average period
+    st.slider("", min_value=30, max_value=365, value=1, key='ma_1')
+with col2:
+    st.markdown('#### Moving Average 2')
+    # Give textinput box
+    st.slider("", min_value=30, max_value=365, value=1, key='ma_2')
+
+viz.price_history['ma_1'] = viz.price_history['Close'].rolling(window=st.session_state['ma_1']).mean()
+viz.price_history['ma_2'] = viz.price_history['Close'].rolling(window=st.session_state['ma_2']).mean()
+
+# Add MA_1 Line
+fig.add_trace(
+    go.Scatter(
+        x=viz.price_history['Date'],
+        y=viz.price_history['ma_1'],
+        mode='lines',
+        line={"width": 1.25},
+        name="MA 1",
+        opacity=0.45,
+        marker={'color': 'black'}
+    )
+)
+
+# Add MA_2 Line
+fig.add_trace(
+    go.Scatter(
+        x=viz.price_history['Date'],
+        y=viz.price_history['ma_2'],
+        mode='lines',
+        line={"width": 1.25},
+        name="MA 2",
+        opacity=0.45,
+        marker={'color': 'orange'}
+    )
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
+# Trade Volume Chart
+st.plotly_chart(viz.trade_volume_chart(), use_container_width=True)
+
 
 # Tabs for each strategy
-tab1, tab2, tab3 = st.tabs(["Strategy 1: LSTM", "Strategy 2: ARIMA", "Strategy 3: Moving Average"])
+tab1, tab2 = st.tabs(["Strategy 1: LSTM", "Strategy 2: ARIMA"])
 
 with tab1:
     
@@ -113,58 +163,4 @@ with tab2:
     )
 
     st.plotly_chart(fig, use_container_width=True)
-   
-
-with tab3:
-    st.header("Moving Average")
-    
-    # Candlesticks Chart Figure Object
-    fig = viz.historical_price_candlestick_chart()
-   
-    # Add columns for the moving average sliders
-    col1, col2 = st.columns(2)
-   
-    # MA 1 column
-    with col1:
-        st.markdown('#### Moving Average 1')
-        # Give Selectbox for the moving average period
-        st.slider("", min_value=30, max_value=365, value=1, key='ma_1')
-    with col2:
-        st.markdown('#### Moving Average 2')
-        # Give textinput box
-        st.slider("", min_value=30, max_value=365, value=1, key='ma_2')
-   
-    viz.price_history['ma_1'] = viz.price_history['Close'].rolling(window=st.session_state['ma_1']).mean()
-    viz.price_history['ma_2'] = viz.price_history['Close'].rolling(window=st.session_state['ma_2']).mean()
-   
-    # Add MA_1 Line
-    fig.add_trace(
-        go.Scatter(
-            x=viz.price_history['Date'],
-            y=viz.price_history['ma_1'],
-            mode='lines',
-            line={"width": 1.25},
-            name="MA 1",
-            opacity=0.45,
-            marker={'color': 'black'}
-        )
-    )
-    
-    # Add MA_2 Line
-    fig.add_trace(
-        go.Scatter(
-            x=viz.price_history['Date'],
-            y=viz.price_history['ma_2'],
-            mode='lines',
-            line={"width": 1.25},
-            name="MA 2",
-            opacity=0.45,
-            marker={'color': 'orange'}
-        )
-    )
-   
-    st.plotly_chart(fig, use_container_width=True)
-    
-    # Trade Volume Chart
-    st.plotly_chart(viz.trade_volume_chart(), use_container_width=True)
     
