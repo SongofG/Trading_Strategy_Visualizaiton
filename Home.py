@@ -30,13 +30,8 @@ if 'train_ratio' not in st.session_state or st.session_state['train_ratio'] == '
 # Generate random data for the stock price
 # np.random.seed(0)
 dates = pd.date_range('2023-01-01', '2023-12-31')
-price1 = np.cumsum(np.random.randn(len(dates))) + 100
 price2 = np.cumsum(np.random.randn(len(dates))) + 100
-price3 = np.cumsum(np.random.randn(len(dates))) + 100
-
-price1_df = pd.DataFrame({'Date': dates, 'Price': price1})
 price2_df = pd.DataFrame({'Date': dates, 'Price': price2})
-price3_df = pd.DataFrame({'Date': dates, 'Price': price3})
 
 # Tickers
 tickers = pd.read_csv('data/tickers.csv')
