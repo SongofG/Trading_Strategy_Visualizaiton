@@ -4,7 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 from yfinance.base import TickerBase
-from statsmodels.tsa.stattools import acf
+from statsmodels.tsa.stattools import acf, pacf
 
 class Visualizers():
     
@@ -125,18 +125,24 @@ class Visualizers():
         return fig
     
     
-    def plot_acf(self, data, nlags, alpha):
+    def plot_acf_pacf(self, data, nlags, alpha, is_acf=True):
         
         # Get the ACF and Confidence Intervals
         lags = np.arange(0, int(nlags) + 1)  # +1 for zero lag
         
-        acf_x = acf(data, nlags=nlags, alpha=alpha)
+        # Check if it's ACF or PACF
+        if is_acf:
+            cf_x = acf(data, nlags=nlags, alpha=alpha)
+            title = 'Autocorrelation Function (ACF)'
+        else:
+            cf_x = pacf(data, nlags=nlags, alpha=alpha)
+            title = 'Partially Autocorrelation Function (PACF)'
         
-        ACF, confint = acf_x[:2]
+        CF, confint = cf_x[:2]
         
         # Calculate the Lower and Upper Bounds
-        lower_bound = confint[:, 0] - ACF
-        upper_bound = confint[:, 1] - ACF
+        lower_bound = confint[:, 0] - CF
+        upper_bound = confint[:, 1] - CF
         
         # Upper & Lower bounds
         
@@ -162,24 +168,25 @@ class Visualizers():
         )
         
         # Plot ACFs in Vertical Lines
-        acf_lines = []
+        cf_lines = []
         for lag in lags:
             
             line = go.Scatter(
                 x=[lag, lag],
-                y=[0,ACF[lag]] if ACF[lag] > 0 else [ACF[lag], 0],
+                y=[0,CF[lag]] if CF[lag] > 0 else [CF[lag], 0],
                 mode='lines+markers',
                 line=dict(color='orange'),
                 showlegend=False
             )
             
-            acf_lines.append(line)
+            cf_lines.append(line)
         
-        fig = go.Figure(data=acf_lines + [upper_bound_trace, lower_bound_trace])
+        fig = go.Figure(data=cf_lines + [upper_bound_trace, lower_bound_trace])
         
         fig.update_layout(
-            title='Autocorrelation (ACF)',
-            yaxis=dict(range=[-1.1, 1.1])
+            title=title,
+            yaxis=dict(range=[-1.2, 1.2])
         )
         
         return fig
+    

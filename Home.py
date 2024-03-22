@@ -43,13 +43,18 @@ st.title("Stock Trading Strategies Visualization")
 # Rough Guide
 st.write("Please select the ticker of interst!")
 
-# Select Box: Ticker
-ticker = st.selectbox("What's the ticker of interest?", sorted_tickers, key='ticker')
+ticker_choice, period_choice, price_choice = st.columns(3)
 
-period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo','3mo','6mo','1y','2y','5y','10y','ytd','max'], key='period')
+with ticker_choice:
+    # Select Box: Ticker
+    ticker = st.selectbox("What's the ticker of interest?", sorted_tickers, key='ticker')
 
-# Select Box of the data to train for
-price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
+with period_choice:
+    period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo','3mo','6mo','1y','2y','5y','10y','ytd','max'], key='period')
+
+with price_choice:
+    # Select Box of the data to train for
+    price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
 
 # Initialize the Visualizer Object
 viz = Visualizers(ticker=st.session_state.ticker, period=st.session_state.period)
@@ -112,7 +117,9 @@ st.plotly_chart(viz.trade_volume_chart(), use_container_width=True)
 acf_col, pacf_col = st.columns(2)
 
 with acf_col:
-    st.plotly_chart(viz.plot_acf(viz.price_history[price_type], nlags=30, alpha=0.05))
+    st.plotly_chart(viz.plot_acf_pacf(viz.price_history[price_type], nlags=30, alpha=0.05, is_acf=True), use_container_width=True)
+with pacf_col:
+    st.plotly_chart(viz.plot_acf_pacf(viz.price_history[price_type], nlags=30, alpha=0.05, is_acf=False), use_container_width=True)
 
 
 # Tabs for each strategy
