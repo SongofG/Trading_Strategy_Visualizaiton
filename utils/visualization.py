@@ -4,6 +4,7 @@ import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
 from yfinance.base import TickerBase
+from statsmodels.tsa.stattools import acf
 
 class Visualizers():
     
@@ -120,5 +121,63 @@ class Visualizers():
             yanchor='bottom'
                 )
             )
+        
+        return fig
+    
+    
+    def plot_acf(self, data, nlags, alpha):
+        
+        # Get the ACF and Confidence Intervals
+        lags = np.arange(0, int(nlags) + 1)  # +1 for zero lag
+        
+        acf_x = acf(data, nlags=nlags, alpha=alpha)
+        
+        ACF, confint = acf_x[:2]
+        
+        # Calculate the Lower and Upper Bounds
+        lower_bound = confint[:, 0] - ACF
+        upper_bound = confint[:, 1] - ACF
+        
+        # Upper & Lower bounds
+        
+        upper_bound_trace = go.Scatter(
+            x = lags,
+            y = upper_bound,
+            mode='lines',
+            fill=None,
+            line=dict(color='rgba(0,100,80,0.2)'),
+            name='Upper Bound'
+        )
+
+        lower_bound_trace = go.Scatter(
+            x = lags,
+            y = lower_bound,
+            mode='lines',
+            fill='tonexty',  # This fills the area between this trace and the one above it
+            fillcolor='rgba(0,100,80,0.2)',
+            line=dict(color='rgba(0,100,80,0.2)'),
+            name='Lower Bound'
+        )
+        
+        # Plot ACFs in Vertical Lines
+        acf_lines = []
+        for lag in lags:
+            
+            line = go.Scatter(
+                x=[lag, lag],
+                y=[0,ACF[lag]] if ACF[lag] > 0 else [ACF[lag], 0],
+                mode='lines+markers',
+                line=dict(color='orange'),
+                showlegend=False
+            )
+            
+            acf_lines.append(line)
+        
+        fig = go.Figure(data=acf_lines + [upper_bound_trace, lower_bound_trace])
+        
+        fig.update_layout(
+            title='Autocorrelation (ACF)',
+            yaxis=dict(range=[-1.1, 1.1])
+        )
         
         return fig

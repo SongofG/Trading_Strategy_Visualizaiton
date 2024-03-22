@@ -48,27 +48,34 @@ ticker = st.selectbox("What's the ticker of interest?", sorted_tickers, key='tic
 
 period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo','3mo','6mo','1y','2y','5y','10y','ytd','max'], key='period')
 
+# Select Box of the data to train for
+price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
+
 # Initialize the Visualizer Object
 viz = Visualizers(ticker=st.session_state.ticker, period=st.session_state.period)
 
  # Candlesticks Chart Figure Object
 fig = viz.historical_price_candlestick_chart()
 
-# Add columns for the moving average sliders
-col1, col2 = st.columns(2)
+st.markdown('#### Moving Average 1')
+# Give Selectbox for the moving average period
+st.slider("", min_value=30, max_value=365, value=1, key='ma_1')
 
-# MA 1 column
-with col1:
-    st.markdown('#### Moving Average 1')
-    # Give Selectbox for the moving average period
-    st.slider("", min_value=30, max_value=365, value=1, key='ma_1')
-with col2:
-    st.markdown('#### Moving Average 2')
-    # Give textinput box
-    st.slider("", min_value=30, max_value=365, value=1, key='ma_2')
+# # Add columns for the moving average sliders
+# col1, col2 = st.columns(2)
+
+# # MA 1 column
+# with col1:
+#     st.markdown('#### Moving Average 1')
+#     # Give Selectbox for the moving average period
+#     st.slider("", min_value=30, max_value=365, value=1, key='ma_1')
+# with col2:
+#     st.markdown('#### Moving Average 2')
+#     # Give textinput box
+#     st.slider("", min_value=30, max_value=365, value=1, key='ma_2')
 
 viz.price_history['ma_1'] = viz.price_history['Close'].rolling(window=st.session_state['ma_1']).mean()
-viz.price_history['ma_2'] = viz.price_history['Close'].rolling(window=st.session_state['ma_2']).mean()
+# viz.price_history['ma_2'] = viz.price_history['Close'].rolling(window=st.session_state['ma_2']).mean()
 
 # Add MA_1 Line
 fig.add_trace(
@@ -83,23 +90,29 @@ fig.add_trace(
     )
 )
 
-# Add MA_2 Line
-fig.add_trace(
-    go.Scatter(
-        x=viz.price_history['Date'],
-        y=viz.price_history['ma_2'],
-        mode='lines',
-        line={"width": 1.25},
-        name="MA 2",
-        opacity=0.45,
-        marker={'color': 'orange'}
-    )
-)
+# # Add MA_2 Line
+# fig.add_trace(
+#     go.Scatter(
+#         x=viz.price_history['Date'],
+#         y=viz.price_history['ma_2'],
+#         mode='lines',
+#         line={"width": 1.25},
+#         name="MA 2",
+#         opacity=0.45,
+#         marker={'color': 'orange'}
+#     )
+# )
 
 st.plotly_chart(fig, use_container_width=True)
 
 # Trade Volume Chart
 st.plotly_chart(viz.trade_volume_chart(), use_container_width=True)
+
+# ACF and PACF Visualizations
+acf_col, pacf_col = st.columns(2)
+
+with acf_col:
+    st.plotly_chart(viz.plot_acf(viz.price_history[price_type], nlags=30, alpha=0.05))
 
 
 # Tabs for each strategy
@@ -108,9 +121,6 @@ tab1, tab2 = st.tabs(["Strategy 1: LSTM", "Strategy 2: ARIMA"])
 with tab1:
     
     st.header("LSTM")
-    
-    # Select Box of the data to train for
-    price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
     
     # Get the preprocessor ready
     preprocessor = Preprocess(viz.price_history, price_type)
