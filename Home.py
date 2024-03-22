@@ -25,6 +25,8 @@ if 'window_size' not in st.session_state:
     st.session_state['window_size'] = 20
 if 'train_ratio' not in st.session_state or st.session_state['train_ratio'] == '':
     st.session_state['train_ratio'] = '0.8'
+if 'num_hidden_layers' not in st.session_state or st.session_state['num_hidden_layers'] == '':
+    st.session_state['num_hidden_layers'] = 1
 
 # Random Stock price generating data
 # Generate random data for the stock price
@@ -147,16 +149,28 @@ with tab1:
     # Get the ratio of training set from the user
     train_ratio = st.text_input("What ratio do you want your dataset to be a training set?", max_chars=4, key="train_ratio")
     
+    # Get the number of hidden layers that user wants
+    num_hidden_layers = st.text_input("How many hidden layers do you want for your model?", key='num_hidden_layers')
+    
     # Check if the ratio is acceptable data type
     try:
         train_ratio = float(train_ratio)
     except Exception as e:
-        st.error('Please enter float values!', icon="⚠️")
+        st.error('Training Ratio: Please enter float values!', icon="⚠️")
     
-    split_data = st.button("Split the Dataset!")
+    # Check if the number of layers are acceptable
+    try:
+        num_hidden_layers = int(num_hidden_layers)
+        
+        assert num_hidden_layers > 0  # Error if the number of input is less than 1
+        assert num_hidden_layers < 6  # Error if the number of input is greater than 9
+    except Exception as e:
+        st.error('Number of Hidden Layers: Please enter a valid value! It should be an integer, greater than 0, and less than or equal to 5', icon='🔥')
+    
+    train_start = st.button("Train Your Model!")
         
     # Split into train, validation, and test and visualize them.
-    if split_data:
+    if train_start:
         result = preprocessor.train_validation_test_split(dates, X, y, train_ratio)
         
         # Visualize the train, validaiton, and split
@@ -164,7 +178,8 @@ with tab1:
         
         st.write("Here is how your data is splited!")
         st.plotly_chart(train_validation_test_split_line, use_container_width=True)
-   
+        
+        st.markdown("# TRAIN!")
 
 with tab2:
     st.header("ARIMA")
