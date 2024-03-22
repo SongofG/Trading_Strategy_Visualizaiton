@@ -146,7 +146,8 @@ class Visualizers():
             mode='lines',
             fill=None,
             line=dict(color='rgba(0,100,80,0.2)'),
-            name='Upper Bound'
+            name='Upper Bound',
+            showlegend=False
         )
 
         lower_bound_trace = go.Scatter(
@@ -156,7 +157,8 @@ class Visualizers():
             fill='tonexty',  # This fills the area between this trace and the one above it
             fillcolor='rgba(0,100,80,0.2)',
             line=dict(color='rgba(0,100,80,0.2)'),
-            name='Lower Bound'
+            name='Lower Bound',
+            showlegend=False
         )
         
         # Plot ACFs in Vertical Lines
