@@ -19,8 +19,8 @@ if 'period' not in st.session_state:
     st.session_state['period'] = '2y'
 if 'ma_1' not in st.session_state:
     st.session_state['ma_1'] = 224
-if 'ma_2' not in st.session_state:
-    st.session_state['ma_2'] = 112
+# if 'ma_2' not in st.session_state:
+#     st.session_state['ma_2'] = 112
 if 'window_size' not in st.session_state:
     st.session_state['window_size'] = 20
 if 'train_ratio' not in st.session_state or st.session_state['train_ratio'] == '':
@@ -66,7 +66,7 @@ fig = viz.historical_price_candlestick_chart()
 
 st.markdown('#### Moving Average 1')
 # Give Selectbox for the moving average period
-st.slider("", min_value=30, max_value=365, value=1, key='ma_1')
+st.slider("", min_value=30, max_value=365, key='ma_1')
 
 # # Add columns for the moving average sliders
 # col1, col2 = st.columns(2)
