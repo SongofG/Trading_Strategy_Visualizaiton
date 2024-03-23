@@ -19,21 +19,12 @@ if 'period' not in st.session_state:
     st.session_state['period'] = '2y'
 if 'ma_1' not in st.session_state:
     st.session_state['ma_1'] = 224
-# if 'ma_2' not in st.session_state:
-#     st.session_state['ma_2'] = 112
 if 'window_size' not in st.session_state:
     st.session_state['window_size'] = 20
 if 'train_ratio' not in st.session_state or st.session_state['train_ratio'] == '':
     st.session_state['train_ratio'] = '0.8'
 if 'num_hidden_layers' not in st.session_state or st.session_state['num_hidden_layers'] == '':
     st.session_state['num_hidden_layers'] = 1
-
-# Random Stock price generating data
-# Generate random data for the stock price
-# np.random.seed(0)
-dates = pd.date_range('2023-01-01', '2023-12-31')
-price2 = np.cumsum(np.random.randn(len(dates))) + 100
-price2_df = pd.DataFrame({'Date': dates, 'Price': price2})
 
 # Tickers
 tickers = pd.read_csv('data/tickers.csv')
@@ -67,19 +58,6 @@ fig = viz.historical_price_candlestick_chart()
 st.markdown('#### Moving Average 1')
 # Give Selectbox for the moving average period
 st.slider("", min_value=30, max_value=365, key='ma_1')
-
-# # Add columns for the moving average sliders
-# col1, col2 = st.columns(2)
-
-# # MA 1 column
-# with col1:
-#     st.markdown('#### Moving Average 1')
-#     # Give Selectbox for the moving average period
-#     st.slider("", min_value=30, max_value=365, value=1, key='ma_1')
-# with col2:
-#     st.markdown('#### Moving Average 2')
-#     # Give textinput box
-#     st.slider("", min_value=30, max_value=365, value=1, key='ma_2')
 
 viz.price_history['ma_1'] = viz.price_history['Close'].rolling(window=st.session_state['ma_1']).mean()
 # viz.price_history['ma_2'] = viz.price_history['Close'].rolling(window=st.session_state['ma_2']).mean()
@@ -183,16 +161,4 @@ with tab1:
 
 with tab2:
     st.header("ARIMA")
-
-    fig = go.Figure()
-
-    fig.add_trace(go.Scatter(x=price2_df['Date'], y=price2_df['Price'], mode='lines', name='Price'))
-    # Update layout
-    fig.update_layout(
-        title='Random Stock Price Chart',
-        xaxis_title='Date',
-        yaxis_title='Price'
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
     
