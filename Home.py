@@ -75,19 +75,6 @@ fig.add_trace(
     )
 )
 
-# # Add MA_2 Line
-# fig.add_trace(
-#     go.Scatter(
-#         x=viz.price_history['Date'],
-#         y=viz.price_history['ma_2'],
-#         mode='lines',
-#         line={"width": 1.25},
-#         name="MA 2",
-#         opacity=0.45,
-#         marker={'color': 'orange'}
-#     )
-# )
-
 st.plotly_chart(fig, use_container_width=True)
 
 # Trade Volume Chart
