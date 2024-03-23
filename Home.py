@@ -24,7 +24,23 @@ if 'window_size' not in st.session_state:
 if 'train_ratio' not in st.session_state or st.session_state['train_ratio'] == '':
     st.session_state['train_ratio'] = '0.8'
 if 'num_hidden_layers' not in st.session_state or st.session_state['num_hidden_layers'] == '':
-    st.session_state['num_hidden_layers'] = 1
+    st.session_state['num_hidden_layers'] = '1'
+if 'lstm_button_clicked' not in st.session_state:
+    st.session_state['lstm_button_clicked'] = [False] * 3  # Assuming a maximum of 3 buttons for example
+
+# Function to set the state of the button
+def set_lstm_button_state(index):
+    st.session_state['lstm_button_clicked'][index] = True
+    
+def set_lstm_button_reset():
+    st.session_state['lstm_button_clicked'] = [False] * 3 
+
+# Function to call the callback functions and arguments
+def call_function_by_index(functions_list, args_list, index):
+    if index < len(functions_list) and index < len(args_list):
+        functions_list[index](*args_list[index])
+    else:
+        st.warning("No Function for the button yet", icon="🔥")
 
 # Tickers
 tickers = pd.read_csv('data/tickers.csv')
@@ -40,14 +56,14 @@ ticker_choice, period_choice, price_choice = st.columns(3)
 
 with ticker_choice:
     # Select Box: Ticker
-    ticker = st.selectbox("What's the ticker of interest?", sorted_tickers, key='ticker')
+    ticker = st.selectbox("What's the ticker of interest?", sorted_tickers, key='ticker', on_change=set_lstm_button_reset)
 
 with period_choice:
-    period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo','3mo','6mo','1y','2y','5y','10y','ytd','max'], key='period')
+    period = st.selectbox("What date period are you interested in?", ['1d','5d','1mo','3mo','6mo','1y','2y','5y','10y','ytd','max'], key='period', on_change=set_lstm_button_reset)
 
 with price_choice:
     # Select Box of the data to train for
-    price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type")
+    price_type = st.selectbox("What is your price type of interest to train the model?", ["Open", "Close", "High", "Low"], key="price_type", on_change=set_lstm_button_reset)
 
 # Initialize the Visualizer Object
 viz = Visualizers(ticker=st.session_state.ticker, period=st.session_state.period)
@@ -100,7 +116,7 @@ with tab1:
     preprocessor = Preprocess(viz.price_history, price_type)
     
     # Slider for the range of the window function
-    window_size = st.slider("Give me the window_size!", min_value=0, max_value=viz.price_history[price_type].shape[0]//4, key='window_size')  # limited the size of window function so that it cannot have the full range.
+    window_size = st.slider("Give me the window_size!", min_value=0, max_value=viz.price_history[price_type].shape[0]//4, key='window_size', on_change=set_lstm_button_reset)  # limited the size of window function so that it cannot have the full range.
     
     # #Split the data into X and Y!
     # X, y = preprocessor.dataframe_to_X_y(viz.price_history[price_type], window_size=window_size)
@@ -112,10 +128,10 @@ with tab1:
     dates, X, y = preprocessor.windowed_df_to_dates_X_y(n=window_size)
     
     # Get the ratio of training set from the user
-    train_ratio = st.text_input("What ratio do you want your dataset to be a training set?", max_chars=4, key="train_ratio")
+    train_ratio = st.text_input("What ratio do you want your dataset to be a training set?", max_chars=4, key="train_ratio", on_change=set_lstm_button_reset)
     
     # Get the number of hidden layers that user wants
-    num_hidden_layers = st.text_input("How many hidden layers do you want for your model?", key='num_hidden_layers')
+    num_hidden_layers = st.text_input("How many hidden layers do you want for your model?", key='num_hidden_layers', on_change=set_lstm_button_reset)
     
     # Check if the ratio is acceptable data type
     try:
@@ -131,20 +147,23 @@ with tab1:
         assert num_hidden_layers < 6  # Error if the number of input is greater than 9
     except Exception as e:
         st.error('Number of Hidden Layers: Please enter a valid value! It should be an integer, greater than 0, and less than or equal to 5', icon='🔥')
-    
-    train_start = st.button("Train Your Model!")
         
-    # Split into train, validation, and test and visualize them.
-    if train_start:
-        result = preprocessor.train_validation_test_split(dates, X, y, train_ratio)
+    functions_list = [viz.plot_train_validation_split]
+    args_list = [(preprocessor, dates, X, y, train_ratio)]
         
-        # Visualize the train, validaiton, and split
-        train_validation_test_split_line = viz.train_validation_test_visualization(result)
-        
-        st.write("Here is how your data is splited!")
-        st.plotly_chart(train_validation_test_split_line, use_container_width=True)
-        
-        st.markdown("# TRAIN!")
+    for i, s in enumerate([('Split the data!', 'split'), ('Train and Validate!', 'train'), ('Test!', 'test')]):
+        if i == 0 or st.session_state['lstm_button_clicked'][i-1]:
+            if not st.session_state['lstm_button_clicked'][i]:
+                button = st.button(f'{s[0]}', key=f'{s[1]}', on_click=set_lstm_button_state, args=(i,))
+                if button:
+                    call_function_by_index(functions_list=functions_list, args_list=args_list, index=i)
+            else:
+                call_function_by_index(functions_list=functions_list, args_list=args_list, index=i)
+
+    # Reset button
+    if st.button('Reset'):
+        # Reset all buttons in the session state
+        set_lstm_button_reset()
 
 with tab2:
     st.header("ARIMA")
