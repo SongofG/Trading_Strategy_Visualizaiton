@@ -126,14 +126,22 @@ class Visualizers():
     
     
     # Interactive Plotting 1: Train, Validation Split
-    def plot_train_validation_split(self, preprocessor, dates, X, y, train_ratio):
-        result = preprocessor.train_validation_test_split(dates, X, y, train_ratio)
+    def plot_train_validation_split(self, split_result):
             
         # Visualize the train, validaiton, and split
-        train_validation_test_split_line = self._train_validation_test_visualization(result)
+        train_validation_test_split_line = self._train_validation_test_visualization(split_result)
         
         st.success("Data Split! Done!")
         st.plotly_chart(train_validation_test_split_line, use_container_width=True)
+        
+        
+    # TODO: Interactive Plotting 2: Training and Validaiton Result!
+    def plot_train_and_validation_result(self, preprocessor):
+        # result = preprocessor.train_validation_test_split(dates, X, y, train_ratio)
+        
+        # Get the train, test, and validation data
+        
+        pass
     
     
     def plot_acf_pacf(self, data, nlags, alpha, is_acf=True):

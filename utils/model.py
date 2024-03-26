@@ -12,10 +12,7 @@ class LSTM:
         self._learning_rate = learning_rate
         
         # Get the model layers
-        layers_list = [layers.input(self._input_shape)] 
-        + [layers.LSTM(self._lstm_neuron_num)] 
-        + [layers.Dense(tup[0], activation=tup[1]) for tup in self._layer_and_activation]
-        + [layers.Dense(1)]
+        layers_list = [layers.Input(self._input_shape)] + [layers.LSTM(self._lstm_neuron_num)] + [layers.Dense(tup[1], activation=tup[0]) for tup in self._layer_and_activation] + [layers.Dense(1)]
         
         # Get the model
         self.model = Sequential(layers_list)

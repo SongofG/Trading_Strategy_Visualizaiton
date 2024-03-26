@@ -5,6 +5,7 @@ import numpy as np
 import plotly.graph_objects as go
 from utils.visualization import Visualizers
 from utils.preprocess import Preprocess
+from utils.model import LSTM
 
 
 # Set Page Configuration
@@ -24,7 +25,9 @@ if 'window_size' not in st.session_state:
 if 'train_ratio' not in st.session_state or st.session_state['train_ratio'] == '':
     st.session_state['train_ratio'] = '0.8'
 if 'num_hidden_layers' not in st.session_state or st.session_state['num_hidden_layers'] == '':
-    st.session_state['num_hidden_layers'] = '1'
+    st.session_state['num_hidden_layers'] = 1
+if 'learning_rate' not in st.session_state or st.session_state['learning_rate'] == '':
+    st.session_state['learning_rate'] = 0.001
 if 'lstm_button_clicked' not in st.session_state:
     st.session_state['lstm_button_clicked'] = [False] * 3  # Assuming a maximum of 3 buttons for example
 
@@ -38,7 +41,7 @@ def set_lstm_button_reset():
 # Function to call the callback functions and arguments
 def call_function_by_index(functions_list, args_list, index):
     if index < len(functions_list) and index < len(args_list):
-        functions_list[index](*args_list[index])
+        functions_list[index](args_list[index])
     else:
         st.warning("No Function for the button yet", icon="🔥")
 
@@ -125,13 +128,8 @@ with tab1:
     line_chart = viz.line_chart(x=viz.price_history['Date'], y=viz.price_history[price_type], color='sky blue', width=1.5, xaxis_title='Date', yaxis_title='Price', title=f"{price_type} Price Over Date")
     st.plotly_chart(line_chart, use_container_width=True)
     
-    dates, X, y = preprocessor.windowed_df_to_dates_X_y(n=window_size)
-    
     # Get the ratio of training set from the user
     train_ratio = st.text_input("What ratio do you want your dataset to be a training set?", max_chars=4, key="train_ratio", on_change=set_lstm_button_reset)
-    
-    # Get the number of hidden layers that user wants
-    num_hidden_layers = st.text_input("How many hidden layers do you want for your model?", key='num_hidden_layers', on_change=set_lstm_button_reset)
     
     # Check if the ratio is acceptable data type
     try:
@@ -139,17 +137,45 @@ with tab1:
     except Exception as e:
         st.error('Training Ratio: Please enter float values!', icon="⚠️")
     
-    # Check if the number of layers are acceptable
-    try:
-        num_hidden_layers = int(num_hidden_layers)
+    # Get the number of hidden layers that user wants
+    num_hidden_layers = st.number_input("How many hidden layers do you want for your model?", key='num_hidden_layers', min_value=1, max_value=10, step=1, on_change=set_lstm_button_reset)
+    
+    layer_config = []
+    # Interactive layer config inputs
+    for i in range(num_hidden_layers):
+        st.write(f'##### Layer {i+1} Configuration')
+        col1, col2 = st.columns(2)
         
-        assert num_hidden_layers > 0  # Error if the number of input is less than 1
-        assert num_hidden_layers < 6  # Error if the number of input is greater than 9
-    except Exception as e:
-        st.error('Number of Hidden Layers: Please enter a valid value! It should be an integer, greater than 0, and less than or equal to 5', icon='🔥')
+        with col1:
+            activation = st.selectbox(
+                "Choose activation function",
+                ['relu', 'sigmoid', 'tanh'],
+                key=f"activation_{i+1}"
+            )
+        
+        with col2:
+            neurons = st.number_input(
+                "Number of neurons",
+                min_value=1,
+                max_value=1024,
+                step=1,
+                key=f"neuron_{i+1}"
+            )
+        
+        layer_config.append((activation, neurons))
+        
+    # Get the learning rate
+    learning_rate = st.number_input("What is the learning rate?", key='learning_rate', min_value=0.001, max_value=1.0, step=0.001, format="%.3f", on_change=set_lstm_button_reset)
+        
+    # Preprocess the data
+    dates, X, y = preprocessor.windowed_df_to_dates_X_y(n=window_size)
+    result = preprocessor.train_validation_test_split(dates, X, y, train_ratio)
+    
+    # Get the model object
+    lstm = LSTM(input_shape=(window_size, 1), lstm_neuron_num=num_hidden_layers, layer_and_activation=layer_config, learning_rate=learning_rate)
         
     functions_list = [viz.plot_train_validation_split]
-    args_list = [(preprocessor, dates, X, y, train_ratio)]
+    args_list = [(result)]
         
     for i, s in enumerate([('Split the data!', 'split'), ('Train and Validate!', 'train'), ('Test!', 'test')]):
         if i == 0 or st.session_state['lstm_button_clicked'][i-1]:
