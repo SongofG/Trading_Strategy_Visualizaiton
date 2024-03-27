@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import datetime
 import streamlit as st
+import tensorflow as tf
 
 class Preprocess:
     
@@ -135,11 +136,11 @@ class Preprocess:
         # Split dates
         dates_train, dates_validation, dates_test = dates[:train_q], dates[train_q:validation_q], dates[validation_q:]
         
-        # Split X
-        X_train, X_validation, X_test = X[:train_q], X[train_q:validation_q], X[validation_q:]
+        # Split X, and type casting
+        X_train, X_validation, X_test = tf.convert_to_tensor(X[:train_q], dtype=tf.float32), tf.convert_to_tensor(X[train_q:validation_q], dtype=tf.float32), tf.convert_to_tensor(X[validation_q:], dtype=tf.float32)
         
-        # Split y
-        y_train, y_validation, y_test = y[:train_q], y[train_q:validation_q], y[validation_q:]
+        # Split y and type casting
+        y_train, y_validation, y_test = tf.convert_to_tensor(y[:train_q], dtype=tf.float32), tf.convert_to_tensor(y[train_q:validation_q], dtype=tf.float32), tf.convert_to_tensor(y[validation_q:], dtype=tf.float32)
         
         # Package the outputs
         results = {

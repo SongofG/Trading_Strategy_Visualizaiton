@@ -28,6 +28,8 @@ if 'num_hidden_layers' not in st.session_state or st.session_state['num_hidden_l
     st.session_state['num_hidden_layers'] = 1
 if 'learning_rate' not in st.session_state or st.session_state['learning_rate'] == '':
     st.session_state['learning_rate'] = 0.001
+if 'epochs' not in st.session_state or st.session_state['epochs'] == '':
+    st.session_state['epochs'] = 100
 if 'lstm_button_clicked' not in st.session_state:
     st.session_state['lstm_button_clicked'] = [False] * 3  # Assuming a maximum of 3 buttons for example
 
@@ -41,7 +43,7 @@ def set_lstm_button_reset():
 # Function to call the callback functions and arguments
 def call_function_by_index(functions_list, args_list, index):
     if index < len(functions_list) and index < len(args_list):
-        functions_list[index](args_list[index])
+        functions_list[index](*args_list[index])
     else:
         st.warning("No Function for the button yet", icon="🔥")
 
@@ -164,6 +166,9 @@ with tab1:
         
         layer_config.append((activation, neurons))
         
+    # Get the epoch
+    epochs = st.number_input("What the number of epochs?", key='epochs', min_value=1, max_value=10000, step=1, on_change=set_lstm_button_reset)
+    
     # Get the learning rate
     learning_rate = st.number_input("What is the learning rate?", key='learning_rate', min_value=0.001, max_value=1.0, step=0.001, format="%.3f", on_change=set_lstm_button_reset)
         
@@ -174,8 +179,8 @@ with tab1:
     # Get the model object
     lstm = LSTM(input_shape=(window_size, 1), lstm_neuron_num=num_hidden_layers, layer_and_activation=layer_config, learning_rate=learning_rate)
         
-    functions_list = [viz.plot_train_validation_split]
-    args_list = [(result)]
+    functions_list = [viz.plot_train_validation_split, viz.plot_train_validation_result]  # Actual Model Fitting and Plotting
+    args_list = [(result,), (lstm, result, epochs)]
         
     for i, s in enumerate([('Split the data!', 'split'), ('Train and Validate!', 'train'), ('Test!', 'test')]):
         if i == 0 or st.session_state['lstm_button_clicked'][i-1]:

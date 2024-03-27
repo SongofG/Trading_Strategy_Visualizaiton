@@ -1,3 +1,4 @@
+import tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers.legacy import Adam
 from tensorflow.keras import layers
@@ -25,10 +26,26 @@ class LSTM:
         )    
     
     
-    def fit(self, X_train, y_train, X_validation, y_validation, epoch):
-        self.model.fit(X_train, y_train, validation_data=(X_validation, y_validation), epoch=epoch)
+    def fit(self, X_train, y_train, X_validation, y_validation, epochs):
+        
+        # Check if the data types are acceptable
+        if type(X_train) is not tf.float32:
+            X_train = tf.convert_to_tensor(X_train, dtype=tf.float32)
+        if type(y_train) is not tf.float32:
+            y_train = tf.convert_to_tensor(y_train, dtype=tf.float32)
+        if type(X_validation) is not tf.float32:
+            X_validation = tf.convert_to_tensor(X_validation, dtype=tf.float32)
+        if type(y_validation) is not tf.float32:
+            y_validation = tf.convert_to_tensor(y_validation, dtype=tf.float32)
+        
+        self.model.fit(X_train, y_train, validation_data=(X_validation, y_validation), epochs=epochs)
         
     
     def predict(self, X):
+        
+        # Check if the data type is acceptable
+        if type(X) is not tf.float32:
+            X = tf.convert_to_tensor(X, dtype=tf.float32)
+        
         return self.model.predict(X).flatten()
     

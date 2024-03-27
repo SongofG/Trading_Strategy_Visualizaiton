@@ -136,12 +136,68 @@ class Visualizers():
         
         
     # TODO: Interactive Plotting 2: Training and Validaiton Result!
-    def plot_train_and_validation_result(self, preprocessor):
-        # result = preprocessor.train_validation_test_split(dates, X, y, train_ratio)
+    def _train_validation_result_visualization(self, model, data, epochs):
         
-        # Get the train, test, and validation data
+        X_train, y_train, X_validation, y_validation = data['X']['train'], data['y']['train'], data['X']['validation'], data['y']['validation']
         
-        pass
+        date_train, date_validation = data['dates']['train'], data['dates']['validation']
+        
+        # Fit the model with the given data
+        model.fit(X_train, y_train, X_validation, y_validation, epochs)
+        
+        # Get the predicted values for training and validation
+        train_pred = model.predict(X_train)
+        validation_pred = model.predict(X_validation)
+        
+        # Get the train and validation plots
+        train_line = go.Scatter(
+            x=date_train,
+            y=y_train,
+            name='Training Data',
+            mode='lines',
+            line=dict(color='sky blue')
+        )
+        
+        validation_line = go.Scatter(
+            x=date_validation,
+            y=y_validation,
+            name='Validation Data',
+            mode='lines',
+            line=dict(color='sky blue')
+        )
+        
+        train_pred_line = go.Scatter(
+            x=date_train,
+            y=train_pred,
+            name='Training Prediction',
+            mode='lines',
+            line=dict(color='orange')
+        )
+        
+        validation_pred_line = go.Scatter(
+            x=date_validation,
+            y=validation_pred,
+            name='Validation Prediction',
+            mode='lines',
+            line=dict(color='orange')
+        )
+        
+        fig = go.Figure(data=[train_line, validation_line, train_pred_line, validation_pred_line])
+        
+        fig.update_layout(
+            title='Original Data V.S. Predicted Data'
+        )
+        
+        return fig
+    
+    
+    def plot_train_validation_result(self, model, data, epochs):
+        
+        # Visualize the result of training
+        result_plot = self._train_validation_result_visualization(model, data, epochs)
+        
+        st.success("Training Done!")
+        st.plotly_chart(result_plot, use_container_width=True)
     
     
     def plot_acf_pacf(self, data, nlags, alpha, is_acf=True):
