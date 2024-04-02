@@ -135,7 +135,7 @@ class Visualizers():
         st.plotly_chart(train_validation_test_split_line, use_container_width=True)
         
         
-    # TODO: Interactive Plotting 2: Training and Validaiton Result!
+    # Interactive Plotting 2: Training and Validaiton Result!
     def _train_validation_result_visualization(self, model, data, epochs):
         
         X_train, y_train, X_validation, y_validation = data['X']['train'], data['y']['train'], data['X']['validation'], data['y']['validation']
@@ -197,6 +197,51 @@ class Visualizers():
         result_plot = self._train_validation_result_visualization(model, data, epochs)
         
         st.success("Training Done!")
+        st.plotly_chart(result_plot, use_container_width=True)
+        
+    
+    # TODO: Interactive Plotting 3: Visualize Test Result
+    
+    def _test_result_visualization(self, model, data):
+        
+        X_test, y_test = data['X']['test'], data['y']['test']
+        
+        date_test = data['dates']['test']
+        
+        # Get the predicted values for training and validation
+        test_pred = model.predict(X_test)
+        
+        test_line = go.Scatter(
+            x=date_test,
+            y=y_test,
+            name='Testing Data',
+            mode='lines',
+            line=dict(color='sky blue')
+        )
+        
+        test_pred_line = go.Scatter(
+            x=date_test,
+            y=test_pred,
+            name='Training Prediction',
+            mode='lines',
+            line=dict(color='orange')
+        )
+        
+        fig = go.Figure(data=[test_line, test_pred_line])
+        
+        fig.update_layout(
+            title='Original Data V.S. Predicted Data'
+        )
+        
+        return fig
+    
+
+    def plot_test_result(self, model, data):
+        
+        # Visualize the result of training
+        result_plot = self._test_result_visualization(model, data)
+        
+        st.success("Testing Done!")
         st.plotly_chart(result_plot, use_container_width=True)
     
     

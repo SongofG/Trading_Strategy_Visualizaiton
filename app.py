@@ -179,8 +179,8 @@ with tab1:
     # Get the model object
     lstm = LSTM(input_shape=(window_size, 1), lstm_neuron_num=num_hidden_layers, layer_and_activation=layer_config, learning_rate=learning_rate)
         
-    functions_list = [viz.plot_train_validation_split, viz.plot_train_validation_result]  # Actual Model Fitting and Plotting
-    args_list = [(result,), (lstm, result, epochs)]
+    functions_list = [viz.plot_train_validation_split, viz.plot_train_validation_result, viz.plot_test_result]  # Actual Model Fitting and Plotting
+    args_list = [(result,), (lstm, result, epochs), (lstm, result)]
         
     for i, s in enumerate([('Split the data!', 'split'), ('Train and Validate!', 'train'), ('Test!', 'test')]):
         if i == 0 or st.session_state['lstm_button_clicked'][i-1]:
