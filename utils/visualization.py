@@ -143,7 +143,8 @@ class Visualizers():
         date_train, date_validation = data['dates']['train'], data['dates']['validation']
         
         # Fit the model with the given data
-        model.fit(X_train, y_train, X_validation, y_validation, epochs)
+        if model.training_needed:
+            model.fit(X_train, y_train, X_validation, y_validation, epochs)
         
         # Get the predicted values for training and validation
         train_pred = model.predict(X_train)
@@ -198,6 +199,8 @@ class Visualizers():
         
         st.success("Training Done!")
         st.plotly_chart(result_plot, use_container_width=True)
+        
+        st.session_state['training_needed'] = False
         
     
     # TODO: Interactive Plotting 3: Visualize Test Result

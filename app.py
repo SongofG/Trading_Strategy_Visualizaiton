@@ -32,13 +32,19 @@ if 'epochs' not in st.session_state or st.session_state['epochs'] == '':
     st.session_state['epochs'] = 100
 if 'lstm_button_clicked' not in st.session_state:
     st.session_state['lstm_button_clicked'] = [False] * 3  # Assuming a maximum of 3 buttons for example
+if 'training_needed' not in st.session_state:
+    st.session_state['training_needed'] = True
+if 'lstm_model' not in st.session_state:
+    st.session_state['lstm_model'] = None
 
 # Function to set the state of the button
 def set_lstm_button_state(index):
     st.session_state['lstm_button_clicked'][index] = True
     
 def set_lstm_button_reset():
-    st.session_state['lstm_button_clicked'] = [False] * 3 
+    st.session_state['lstm_button_clicked'] = [False] * 3
+    st.session_state['training_needed'] = True
+    st.session_state['lstm_model'] = None
 
 # Function to call the callback functions and arguments
 def call_function_by_index(functions_list, args_list, index):
@@ -177,10 +183,14 @@ with tab1:
     result = preprocessor.train_validation_test_split(dates, X, y, train_ratio)
     
     # Get the model object
-    lstm = LSTM(input_shape=(window_size, 1), lstm_neuron_num=num_hidden_layers, layer_and_activation=layer_config, learning_rate=learning_rate)
+    if st.session_state['training_needed']:
+        lstm = LSTM(input_shape=(window_size, 1), lstm_neuron_num=num_hidden_layers, layer_and_activation=layer_config, learning_rate=learning_rate, training_needed=st.session_state['training_needed'])
+        st.session_state['lstm_model'] = lstm
+    else:
+        st.session_state['lstm_model'].set_training_needed(st.session_state['training_needed'])
         
     functions_list = [viz.plot_train_validation_split, viz.plot_train_validation_result, viz.plot_test_result]  # Actual Model Fitting and Plotting
-    args_list = [(result,), (lstm, result, epochs), (lstm, result)]
+    args_list = [(result,), (st.session_state['lstm_model'], result, epochs), (st.session_state['lstm_model'], result)]
         
     for i, s in enumerate([('Split the data!', 'split'), ('Train and Validate!', 'train'), ('Test!', 'test')]):
         if i == 0 or st.session_state['lstm_button_clicked'][i-1]:

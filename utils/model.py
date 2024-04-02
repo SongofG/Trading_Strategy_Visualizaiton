@@ -5,12 +5,13 @@ from tensorflow.keras import layers
 
 class LSTM:
     
-    def __init__(self, input_shape, lstm_neuron_num, layer_and_activation, learning_rate):
+    def __init__(self, input_shape, lstm_neuron_num, layer_and_activation, learning_rate, training_needed):
         
         self._input_shape = input_shape
         self._lstm_neuron_num = lstm_neuron_num
         self._layer_and_activation = layer_and_activation  # A List of tuples of number of neurons and activation functions
         self._learning_rate = learning_rate
+        self.training_needed = training_needed
         
         # Get the model layers
         self.layers_list = [layers.Input(self._input_shape)] + [layers.LSTM(self._lstm_neuron_num)] + [layers.Dense(tup[1], activation=tup[0]) for tup in self._layer_and_activation] + [layers.Dense(1)]
@@ -38,7 +39,8 @@ class LSTM:
         if type(y_validation) is not tf.float32:
             y_validation = tf.convert_to_tensor(y_validation, dtype=tf.float32)
         
-        self.model.fit(X_train, y_train, validation_data=(X_validation, y_validation), epochs=epochs)
+        if self.training_needed:
+            self.model.fit(X_train, y_train, validation_data=(X_validation, y_validation), epochs=epochs)
         
     
     def predict(self, X):
@@ -48,4 +50,8 @@ class LSTM:
             X = tf.convert_to_tensor(X, dtype=tf.float32)
         
         return self.model.predict(X).flatten()
+    
+    
+    def set_training_needed(self, bool):
+        self.training_needed = bool
     
