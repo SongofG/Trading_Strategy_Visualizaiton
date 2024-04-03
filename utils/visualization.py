@@ -225,7 +225,7 @@ class Visualizers():
         test_pred_line = go.Scatter(
             x=date_test,
             y=test_pred,
-            name='Training Prediction',
+            name='Testing Prediction',
             mode='lines',
             line=dict(color='orange')
         )

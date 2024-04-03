@@ -18,6 +18,8 @@ if 'ticker' not in st.session_state:
     st.session_state['ticker'] = 'AAPL'
 if 'period' not in st.session_state:
     st.session_state['period'] = '2y'
+if 'price_type' not in st.session_state:
+    st.session_state['price_type'] = 'Close'
 if 'ma_1' not in st.session_state:
     st.session_state['ma_1'] = 224
 if 'window_size' not in st.session_state:
@@ -31,7 +33,7 @@ if 'learning_rate' not in st.session_state or st.session_state['learning_rate'] 
 if 'epochs' not in st.session_state or st.session_state['epochs'] == '':
     st.session_state['epochs'] = 100
 if 'lstm_button_clicked' not in st.session_state:
-    st.session_state['lstm_button_clicked'] = [False] * 3  # Assuming a maximum of 3 buttons for example
+    st.session_state['lstm_button_clicked'] = [False] * 4  # Assuming a maximum of 4 buttons for example
 if 'training_needed' not in st.session_state:
     st.session_state['training_needed'] = True
 if 'lstm_model' not in st.session_state:
@@ -42,7 +44,7 @@ def set_lstm_button_state(index):
     st.session_state['lstm_button_clicked'][index] = True
     
 def set_lstm_button_reset():
-    st.session_state['lstm_button_clicked'] = [False] * 3
+    st.session_state['lstm_button_clicked'] = [False] * 4
     st.session_state['training_needed'] = True
     st.session_state['lstm_model'] = None
 
@@ -189,10 +191,10 @@ with tab1:
     else:
         st.session_state['lstm_model'].set_training_needed(st.session_state['training_needed'])
         
-    functions_list = [viz.plot_train_validation_split, viz.plot_train_validation_result, viz.plot_test_result]  # Actual Model Fitting and Plotting
-    args_list = [(result,), (st.session_state['lstm_model'], result, epochs), (st.session_state['lstm_model'], result)]
+    functions_list = [viz.plot_train_validation_split, viz.plot_train_validation_result, viz.plot_test_result, st.session_state['lstm_model'].save_model]  # Actual Model Fitting and Plotting
+    args_list = [(result,), (st.session_state['lstm_model'], result, epochs), (st.session_state['lstm_model'], result), (st.session_state['ticker']+'_model',)]
         
-    for i, s in enumerate([('Split the data!', 'split'), ('Train and Validate!', 'train'), ('Test!', 'test')]):
+    for i, s in enumerate([('Split the data!', 'split'), ('Train and Validate!', 'train'), ('Test!', 'test'), ('Save Your Model', 'save')]):
         if i == 0 or st.session_state['lstm_button_clicked'][i-1]:
             if not st.session_state['lstm_button_clicked'][i]:
                 button = st.button(f'{s[0]}', key=f'{s[1]}', on_click=set_lstm_button_state, args=(i,))
