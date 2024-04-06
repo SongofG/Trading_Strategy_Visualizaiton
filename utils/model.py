@@ -13,7 +13,7 @@ class LSTM:
         self._layer_and_activation = layer_and_activation  # A List of tuples of number of neurons and activation functions
         self._learning_rate = learning_rate
         self.training_needed = training_needed 
-    
+        self.model = None
     
     def _create_model(self):
         
@@ -32,6 +32,9 @@ class LSTM:
     
     
     def fit(self, X_train, y_train, X_validation, y_validation, epochs):
+        
+        if bool(self.model):
+            del self.model  # Delete the model object and create it again to re-initialize it.
         
         self._create_model()
         
