@@ -11,3 +11,5 @@ conda_venv/
 
 # jupyter notebooks
 *.ipynb
+
+.DS_Store
